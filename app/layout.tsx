@@ -1,17 +1,17 @@
 import React from 'react';
+import './globals.css';
 
 export const metadata = {
-  title: 'ร้านค้าของฉัน',
+  title: 'NNSHOP | Premium Store',
+  description: 'ระบบร้านค้าอันดับ 1',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th">
-      <body>{children}</body>
+      <body className="bg-[#050505] text-white">
+        {children}
+      </body>
     </html>
   );
 }
