@@ -1,153 +1,70 @@
 "use client";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
+import { ShoppingCart, ShieldCheck, LogIn, LogOut, Package, Home } from "lucide-react";
 
-import React, { useState, useMemo } from 'react';
+export default function UnifiedPage() {
+  const { data: session } = useSession();
+  const [view, setView] = useState("home");
 
-export default function LoveShopUltimate() {
-  // --- DATABASE STATE ---
-  const [categories, setCategories] = useState([
-    { id: 1, name: "PREMIUM APPS", icon: "📺", desc: "แอปพลิเคชันความบันเทิง" },
-    { id: 2, name: "GAMING TOPUP", icon: "💎", desc: "เติมเกมออนไลน์ทุกระบบ" },
-    { id: 3, name: "GIFT CARDS", icon: "💳", desc: "บัตรเติมเงินต่างประเทศ" }
-  ]);
-
-  const [products, setProducts] = useState([
-    { id: 101, catId: 1, name: "Netflix Premium 4K", price: 149, stock: 10, img: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=500" },
-    { id: 102, catId: 1, name: "YouTube No Ads", price: 59, stock: 99, img: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500" },
-    { id: 201, catId: 2, name: "Valorant 1200 VP", price: 320, stock: 50, img: "https://images.unsplash.com/photo-1624138784614-87fd1b6528f8?w=500" },
-    { id: 301, catId: 3, name: "iTunes $10 Card", price: 350, stock: 5, img: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500" }
-  ]);
-
-  // --- SYSTEM STATE ---
-  const [currentPage, setCurrentPage] = useState('home'); 
-  const [activeCat, setActiveCat] = useState<number | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [pin, setPin] = useState("");
-  const [user, setUser] = useState({
-    username: "Premium_User_01",
-    balance: 9850,
-    history: [] as any[]
-  });
-
-  // Form States for Admin
-  const [newCatName, setNewCatName] = useState("");
-  const [newProd, setNewProd] = useState({ name: "", img: "", price: 0, catId: 1 });
-
-  const filteredProducts = useMemo(() => {
-    return activeCat ? products.filter(p => p.catId === activeCat) : products;
-  }, [activeCat, products]);
-
-  const handleAdminAuth = () => {
-    if (pin === "123456") {
-      setIsAdmin(true);
-      setCurrentPage('admin_dashboard');
-      setPin("");
-    } else {
-      alert("❌ รหัสผ่านผิดพลาด!");
-      setPin("");
-    }
-  };
-
-  const buyProduct = (product: any) => {
-    if (user.balance < product.price) return alert("❌ ยอดเงินไม่เพียงพอ!");
-    if (product.stock <= 0) return alert("❌ สินค้าหมดสต็อก!");
-
-    const orderId = "#LS-" + Math.random().toString(36).substr(2, 7).toUpperCase();
-    setUser(prev => ({
-      ...prev,
-      balance: prev.balance - product.price,
-      history: [{ id: orderId, name: product.name, price: product.price, time: new Date().toLocaleString() }, ...prev.history]
-    }));
-    setProducts(prev => prev.map(p => p.id === product.id ? { ...p, stock: p.stock - 1 } : p));
-    alert(`✅ ซื้อสำเร็จ! รหัส: ${orderId}`);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#020205] text-slate-200 font-sans selection:bg-purple-600">
-      {/* NAV BAR */}
-      <nav className="sticky top-0 z-[100] bg-[#05050a]/80 backdrop-blur-xl border-b border-purple-500/10 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-10">
-          <div className="text-2xl font-black italic tracking-tighter cursor-pointer" onClick={() => setCurrentPage('home')}>
-            LOVE<span className="text-purple-500">SHOP</span>
-          </div>
-          <div className="hidden md:flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
-            <button onClick={() => setCurrentPage('home')} className="hover:text-purple-400">Storefront</button>
-            <button onClick={() => setCurrentPage('profile')} className="hover:text-purple-400">My Orders</button>
+  // --- หน้าหลังบ้าน ---
+  if (view === "admin" && session?.user?.role === "OWNER") {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8">
+        <div className="flex justify-between mb-8">
+          <h1 className="text-3xl font-bold italic text-purple-500">NNSHOP ADMIN</h1>
+          <button onClick={() => setView("home")} className="bg-white text-black px-4 py-2 rounded-lg flex items-center gap-2 font-bold"><Home size={18}/> กลับหน้าหลัก</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-8 rounded-2xl border border-white/5 text-center">
+            <p className="text-gray-400">ยอดขายวันนี้</p>
+            <h2 className="text-5xl font-black mt-2">0 ฿</h2>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="bg-purple-600/5 border border-purple-500/20 px-5 py-2 rounded-2xl flex flex-col items-end">
-            <span className="text-[8px] font-black text-purple-500 uppercase">Balance</span>
-            <span className="text-lg font-black text-white">{user.balance.toLocaleString()} <span className="text-xs text-purple-400">฿</span></span>
-          </div>
-          <button onClick={() => isAdmin ? setCurrentPage('admin_dashboard') : setCurrentPage('admin_login')} className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center">
-            {isAdmin ? '⚙️' : '🔒'}
-          </button>
+      </div>
+    );
+  }
+
+  // --- หน้าหลัก / หน้าซื้อของ ---
+  return (
+    <div className="min-h-screen bg-[#050505] text-white font-sans">
+      <nav className="flex justify-between items-center p-6 border-b border-white/5 backdrop-blur-md sticky top-0 z-50">
+        <div className="text-2xl font-black text-purple-500 italic">NNSHOP</div>
+        <div className="flex gap-4 items-center">
+          {!session ? (
+            <button onClick={() => signIn("google")} className="bg-white text-black px-6 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-purple-500 hover:text-white transition-all"><LogIn size={18}/> Login with Google</button>
+          ) : (
+            <div className="flex items-center gap-4">
+              {session.user?.role === "OWNER" && (
+                <button onClick={() => setView("admin")} className="bg-purple-600/20 text-purple-400 border border-purple-500/50 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-purple-600 hover:text-white transition-all"><ShieldCheck size={18}/> จัดการร้าน</button>
+              )}
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-gray-500">ยินดีต้อนรับ</span>
+                <span className="text-sm font-bold">{session.user?.name}</span>
+              </div>
+              <button onClick={() => signOut()} className="bg-red-500/10 text-red-500 p-2 rounded-full hover:bg-red-500 hover:text-white transition-all"><LogOut size={20}/></button>
+            </div>
+          )}
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto p-6">
-        {/* HOME PAGE */}
-        {currentPage === 'home' && (
-          <div className="space-y-12">
-            <div className="relative rounded-[2rem] overflow-hidden p-12 bg-gradient-to-br from-purple-900/20 to-transparent border border-purple-500/10 text-center md:text-left">
-              <h2 className="text-5xl md:text-7xl font-black italic tracking-tighter">THE ULTIMATE <span className="text-purple-500">SHOP</span></h2>
-              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mt-4">Premium Digital Goods Delivery</p>
-            </div>
+      <div className="text-center py-24 px-4">
+        <h1 className="text-7xl font-black mb-6 tracking-tighter uppercase">Premium <span className="text-purple-600">Accounts</span></h1>
+        <p className="text-gray-400 text-xl max-w-xl mx-auto">ระบบออโต้ ปลอดภัย 100% มั่นใจได้ทุกการสั่งซื้อ</p>
+      </div>
 
-            <div className="flex flex-col lg:flex-row gap-10">
-              <aside className="w-full lg:w-64 space-y-2">
-                <button onClick={() => setActiveCat(null)} className={`w-full text-left p-4 rounded-xl font-bold ${!activeCat ? 'bg-purple-600' : 'bg-slate-900'}`}>All Items</button>
-                {categories.map(cat => (
-                  <button key={cat.id} onClick={() => setActiveCat(cat.id)} className={`w-full text-left p-4 rounded-xl font-bold ${activeCat === cat.id ? 'bg-purple-600' : 'bg-slate-900'}`}>{cat.icon} {cat.name}</button>
-                ))}
-              </aside>
-              <div className="flex-grow grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProducts.map(p => (
-                  <div key={p.id} className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden group hover:border-purple-500/50 transition-all">
-                    <img src={p.img} className="h-48 w-full object-cover" alt="" />
-                    <div className="p-6">
-                      <h3 className="text-xl font-black uppercase italic">{p.name}</h3>
-                      <div className="flex justify-between items-center mt-6">
-                        <span className="text-2xl font-black">{p.price} ฿</span>
-                        <button onClick={() => buyProduct(p)} className="bg-white text-black px-6 py-2 rounded-xl font-black text-xs uppercase hover:bg-purple-600 hover:text-white transition-colors">Buy Now</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 p-6 pb-20">
+        {[ {n: "Netflix 4K", p: "150"}, {n: "YouTube Premium", p: "45"}, {n: "Disney+ Hotstar", p: "99"} ].map((item, i) => (
+          <div key={i} className="bg-[#111] p-10 rounded-[2.5rem] border border-white/5 hover:border-purple-500/50 transition-all group">
+            <div className="bg-purple-500/10 w-fit p-4 rounded-2xl mb-6 text-purple-500 group-hover:scale-110 transition-transform"><Package size={32}/></div>
+            <h3 className="text-2xl font-bold mb-2">{item.n}</h3>
+            <div className="flex items-baseline gap-1 mb-8">
+              <span className="text-4xl font-black text-white">{item.p}</span>
+              <span className="text-gray-500 font-bold">฿ / เดือน</span>
             </div>
+            <button className="w-full bg-white/5 py-4 rounded-2xl font-bold hover:bg-purple-600 transition-all flex items-center justify-center gap-3"><ShoppingCart size={20}/> สั่งซื้อทันที</button>
           </div>
-        )}
-
-        {/* ADMIN LOGIN */}
-        {currentPage === 'admin_login' && (
-          <div className="max-w-sm mx-auto py-20 text-center">
-            <h2 className="text-3xl font-black mb-8">ADMIN ACCESS</h2>
-            <input type="password" value={pin} onChange={(e) => setPin(e.target.value)} placeholder="ENTER PIN" className="w-full bg-slate-900 border border-slate-800 p-4 rounded-xl mb-4 text-center text-2xl tracking-[1em]" />
-            <button onClick={handleAdminAuth} className="w-full bg-purple-600 p-4 rounded-xl font-black">LOGIN</button>
-          </div>
-        )}
-
-        {/* ADMIN DASHBOARD */}
-        {currentPage === 'admin_dashboard' && isAdmin && (
-          <div className="space-y-8">
-            <div className="flex justify-between items-center bg-slate-900 p-8 rounded-3xl">
-              <h2 className="text-2xl font-black italic">SYSTEM CONTROL</h2>
-              <button onClick={() => {setIsAdmin(false); setCurrentPage('home')}} className="text-red-500 font-bold">LOGOUT</button>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Add Product Form */}
-              <div className="bg-slate-900/50 p-6 rounded-3xl border border-slate-800">
-                <h3 className="font-black mb-4 uppercase">Add New Product</h3>
-                <input placeholder="Name" className="w-full bg-black p-3 rounded-lg mb-2" onChange={e => setNewProd({...newProd, name: e.target.value})} />
-                <input placeholder="Image URL" className="w-full bg-black p-3 rounded-lg mb-2" onChange={e => setNewProd({...newProd, img: e.target.value})} />
-                <input type="number" placeholder="Price" className="w-full bg-black p-3 rounded-lg mb-4" onChange={e => setNewProd({...newProd, price: Number(e.target.value)})} />
-                <button onClick={() => setProducts([...products, { ...newProd, id: Date.now(), stock: 100 }])} className="w-full bg-white text-black p-3 rounded-xl font-black">DEPLOY</button>
-              </div>
-            </div>
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );
