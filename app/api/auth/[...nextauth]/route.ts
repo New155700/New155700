@@ -9,9 +9,9 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, token }: any) {
-      if (session.user) {
-        // กำหนดให้ Email ของคุณเป็น OWNER โดยอัตโนมัติ
+    async session({ session }: any) {
+      if (session?.user) {
+        // เปลี่ยนเมลข้างล่างนี้เป็น Gmail ของคุณเอง
         if (session.user.email === "newgod155700@gmail.com") {
           session.user.role = "OWNER";
         } else {
@@ -21,6 +21,7 @@ const handler = NextAuth({
       return session;
     },
   },
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };
