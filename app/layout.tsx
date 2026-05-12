@@ -1,21 +1,18 @@
-import './globals.css'
-import type { Metadata } from 'next'
+import React from 'react';
+import './globals.css';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'NNSHOP | Premium Store',
   description: 'ระบบร้านค้าอันดับ 1',
-}
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th">
       <body className="bg-[#050505] text-white">
+        {/* ลบ <Providers> ออกให้เหลือแค่ {children} */}
         {children}
       </body>
     </html>
-  )
+  );
 }
