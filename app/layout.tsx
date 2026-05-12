@@ -1,9 +1,7 @@
 import React from 'react';
-import './globals.css'; // ลบบรรทัดนี้ออกถ้าคุณไม่มีไฟล์ css
 
 export const metadata = {
-  title: 'My Shop',
-  description: 'Next.js App',
+  title: 'ร้านค้าของฉัน',
 };
 
 export default function RootLayout({
