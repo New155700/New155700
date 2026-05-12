@@ -15,7 +15,6 @@ export default function UnifiedPage() {
   const [view, setView] = useState("home");
   const user = session?.user as CustomUser;
 
-  // หน้า Admin (สำหรับเจ้าของร้าน)
   if (view === "admin" && user?.role === "OWNER") {
     return (
       <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -35,7 +34,6 @@ export default function UnifiedPage() {
     );
   }
 
-  // หน้าหลัก (Store)
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <nav className="flex justify-between items-center p-6 border-b border-white/5">
