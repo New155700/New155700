@@ -12,7 +12,7 @@ const handler = NextAuth({
     async session({ session, token }: any) {
       if (session.user) {
         // กำหนดให้ Email ของคุณเป็น OWNER โดยอัตโนมัติ
-        if (session.user.email === "อีเมลของคุณ@gmail.com") {
+        if (session.user.email === "newgod155700@gmail.com") {
           session.user.role = "OWNER";
         } else {
           session.user.role = "USER";
