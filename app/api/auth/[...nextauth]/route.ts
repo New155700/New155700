@@ -11,8 +11,8 @@ const handler = NextAuth({
   callbacks: {
     async session({ session }: any) {
       if (session?.user) {
-        // เปลี่ยนเมลข้างล่างนี้เป็น Gmail ของคุณเอง
-        if (session.user.email === "ใส่เมลคุณที่นี่@gmail.com") {
+        // เปลี่ยนเมลข้างล่างนี้เป็น Gmail ของคุณเองเพื่อเป็นเจ้าของร้าน
+        if (session.user.email === "newgod155700@gmail.com") {
           session.user.role = "OWNER";
         } else {
           session.user.role = "USER";
