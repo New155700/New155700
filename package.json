@@ -1,5 +1,5 @@
 {
-  "name": "nnnshop",
+  "name": "nnshop",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,13 +12,10 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "next-auth": "^4.24.5",
+    "lucide-react": "latest",
     "framer-motion": "latest",
-    "lucide-react": "latest"
-  },
-  "devDependencies": {
-    "typescript": "latest",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest"
+    "clsx": "latest",
+    "tailwind-merge": "latest"
   }
 }
