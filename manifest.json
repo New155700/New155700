@@ -1,0 +1,23 @@
+{
+  "name": "NN SHOP | PRO VERSION",
+  "short_name": "NN SHOP",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#030014",
+  "theme_color": "#a78bfa",
+  "description": "ร้านค้าออนไลน์ NN SHOP ระบบพรีเมียม",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/dVTPCsv5/file-000000002a8072088599ed87bf36d6d0.gif",
+      "sizes": "192x192",
+      "type": "image/gif",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/dVTPCsv5/file-000000002a8072088599ed87bf36d6d0.gif",
+      "sizes": "512x512",
+      "type": "image/gif",
+      "purpose": "any"
+    }
+  ]
+}
