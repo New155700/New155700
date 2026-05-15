@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import json, os, time, uuid
 import string, random
 import requests
+import threading
 
 app = Flask(__name__)
 app.secret_key = "nnshop_ultra_premium_key_9999"
@@ -15,8 +16,25 @@ ADMIN_PIN = "5593"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER): os.makedirs(UPLOAD_FOLDER)
 
+# GitHub Real-time Config
+GITHUB_TOKEN = "ghp_1DS1fUw1a1VjCpoOD9qkYJE3E62XO2m2uGc"
+GITHUB_REPO = "github.com/New155700/New155700.git"
+GITHUB_URL = f"https://New155700:{GITHUB_TOKEN}@{GITHUB_REPO}"
+
 # Cloudflare Turnstile Secret Key
 TURNSTILE_SECRET = "0x4AAAAAADOLXU2qRpsdS8Lm_Mp-iFeUeVA"
+
+# --- SYSTEM: REAL-TIME SYNC HELPER ---
+
+def sync_now():
+    """ฟังก์ชันสั่ง Push ข้อมูลขึ้น GitHub ทันทีแบบเบื้องหลัง"""
+    def run():
+        # รอสัก 1 วินาทีเพื่อให้ไฟล์บันทึกเสร็จสมบูรณ์
+        time.sleep(1)
+        os.system("git add .")
+        os.system(f'git commit -m "Real-time Update: {time.strftime("%H:%M:%S")}"')
+        os.system(f"git push {GITHUB_URL} main --force")
+    threading.Thread(target=run, daemon=True).start()
 
 # --- DATABASE HELPERS ---
 
@@ -35,6 +53,8 @@ def load_db():
 def save_db(data):
     with open(DB_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
+    # สั่งซิงค์ไป GitHub ทันทีที่มีการเซฟข้อมูล
+    sync_now()
 
 def get_user():
     db = load_db()
@@ -73,31 +93,21 @@ def auth():
     if not u or not p:
         return jsonify({"status": "error", "msg": "กรุณากรอกข้อมูลให้ครบ"})
 
-    # --- ส่วนตรวจสอบ Cloudflare Turnstile (แบบ Premium 100%) ---
     if not token:
         return jsonify({"status": "error", "msg": "กรุณายืนยันตัวตนว่าไม่ใช่บอท"})
 
     try:
-        # ส่ง Token ไปเช็คกับเซิร์ฟเวอร์ Cloudflare (เอา remoteip ออกเพื่อป้องกันปัญหาหลัง Proxy)
         verify_response = requests.post(
             "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-            data={
-                'secret': TURNSTILE_SECRET,
-                'response': token
-            },
+            data={'secret': TURNSTILE_SECRET, 'response': token},
             timeout=10
         )
         res_data = verify_response.json()
-        
         if not res_data.get("success"):
-            # หาก Token หมดอายุ หรือไม่ผ่าน จะแจ้งให้ฝั่งหน้าเว็บรีเซ็ต
             return jsonify({"status": "error", "msg": "การยืนยันตัวตนล้มเหลว กรุณารีเฟรชหน้าเว็บแล้วลองใหม่"})
-            
     except requests.exceptions.RequestException:
         return jsonify({"status": "error", "msg": "ระบบตรวจสอบความปลอดภัยขัดข้อง กรุณาลองใหม่"})
-    # --------------------------------------------------------
 
-    # เมื่อผ่านบอทแล้ว ถึงจะประมวลผลการสมัคร/ล็อกอิน
     if action == "register":
         if u in db["users"]: 
             return jsonify({"status": "error", "msg": "มีชื่อผู้ใช้งานนี้ในระบบแล้ว"})
